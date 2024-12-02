@@ -1,94 +1,86 @@
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Edge;
-using OpenQA.Selenium.Firefox;
-using OpenQA.Selenium.Support.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Locators_
 {
-    public class Browser_ops
+    public class BrowserOps
     {
-        EdgeDriver driver;
-        public void Init_Browser()
+        private IWebDriver driver;
+
+        public void InitBrowser()
         {
-            driver = new EdgeDriver();
+            driver = new ChromeDriver();
         }
-        public void Goto(string test_url)
+        public void Goto(string url)
         {
-            driver.Url = test_url;
+            driver.Navigate().GoToUrl(url);
         }
         public void Close()
         {
             driver.Quit();
         }
-        public EdgeDriver getDriver
+        public IWebDriver GetDriver()
         {
-            get { return driver; }
+            return driver;
         }
     }
-    class NUnit_Locators
+
+    [TestFixture]
+    public class NUnitLocators
     {
-        string test_url = "https://www.bbc.com/sport";
-        EdgeDriver driver;
-     
-            [SetUp]   
-        public void Tests()
-    {        
-        driver = new EdgeDriver("C:\\Users\\37529\\Downloads\\edgedriver_win64\\msedgedriver.exe");
-                }
-        [Test]
-        public void Test1()
-        {
-            driver.Url = test_url;
-            IWebElement searchButton = driver.FindElement(By.XPath("//*[@id=\"global-navigation\"]/div[3]/div[2]/a"));
-            searchButton.Click();            
-        }
-        [TearDown]
-        public void close_Browser()
-        {
-            driver.Quit();
-        }
+        private const string TestUrl = "https://www.bbc.com/sport";
+        private BrowserOps browserOps;
+        private IWebDriver driver;
+
         [SetUp]
-        public void Test()
+        public void Setup()
         {
-            driver = new EdgeDriver("C:\\Users\\37529\\Downloads\\edgedriver_win64\\msedgedriver.exe");
+            browserOps = new BrowserOps();
+            browserOps.InitBrowser();
+            driver = browserOps.GetDriver();
         }
-        [Test]
-        public void Test2()
-        {
-            driver.Url = test_url;
-           IWebElement BBCButton = driver.FindElement(By.XPath("//*[@id=\"global-navigation\"]/div[1]/a"));
-            BBCButton.Click();
-            
-        }
-        [Test]
-        public void Test3()
-        {
-            driver.Url = test_url;
-            IWebElement AllSportsButton = driver.FindElement(By.Id("more-menu-button"));
-            AllSportsButton.Click();
-        }
-        [Test]
-        public void Test4()
-        {
-            driver.Url = test_url;
-            IWebElement BBCIcon = driver.FindElement(By.LinkText("BBC Homepage"));           
-        }
+
         [TearDown]
-        public void close_Browser2()
+        public void Teardown()
         {
-            driver.Quit();
+            if (driver != null)
+            {
+                driver.Quit();
+                driver.Dispose();
+            }
         }
 
+        [Test]
+        public void TestSearchButton()
+        {
+            browserOps.Goto(TestUrl);
+            IWebElement searchButton = driver.FindElement(By.XPath("//*[@id=\"global-navigation\"]/div[3]/div[2]/a"));
+            searchButton.Click();
+        }
 
-        
+        [Test]
+        public void TestBBCButton()
+        {
+            browserOps.Goto(TestUrl);
+            IWebElement bbcButton = driver.FindElement(By.XPath("//*[@id=\"global-navigation\"]/div[1]/a"));
+            bbcButton.Click();
+        }
+
+        [Test]
+        public void TestAllSportsButton()
+        {
+            browserOps.Goto(TestUrl);
+            IWebElement allSportsButton = driver.FindElement(By.Id("more-menu-button"));
+            allSportsButton.Click();
+        }
+
+        [Test]
+        public void TestBBCIcon()
+        {
+            browserOps.Goto(TestUrl);
+            IWebElement bbcIcon = driver.FindElement(By.LinkText("BBC Homepage"));
+            bbcIcon.Click();
         }
     }
-    
-    
+}
